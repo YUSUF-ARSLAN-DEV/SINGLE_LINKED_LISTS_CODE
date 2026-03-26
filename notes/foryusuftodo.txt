@@ -1,2 +1,3 @@
 - I need to work on the addNode Method which will expand the LinkedList 
 - Then i need to work on populating the nodes after that when reading from the csv 
+- Yusuf is the yusufest yusuf of all
