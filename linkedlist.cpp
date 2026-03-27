@@ -28,8 +28,20 @@ struct Node
 
 class LinkedList 
 {
+
     public :
     Node* Head ; 
+    LinkedList () 
+    {
+        Head = nullptr ; // the moment the list is created the first Head is a null ptr 
+    } 
+    void insert_node (Node*  n )  // what is passed is the memory address of the last created node
+    {
+       n -> next = Head ; // this perserves the old value of the old  head 
+       this -> Head = n ; 
+       // in C++ this refrences the memory address of the object not the object it self 
+        // take note that we are not taking the object it self but the pointer to it aka the address 
+    }
 };
 
 // helper method to transform string into enump 
@@ -44,9 +56,9 @@ ModeofTransport stringToTransport (string value )
     if (value == "School Bus")    return ModeofTransport :: SchoolBus ;
 }
 
-int main () 
+LinkedList implement_dataset () 
 {
-    // reading the csv file 
+        // reading the csv file 
     // expected column order when reading the data 
     // ResidentID , Age , ModeofTransport , DailyDistance , CarbonEmissionFactor , AverageDayPerMonth
     ifstream file("citya.csv") ;
@@ -54,6 +66,7 @@ int main ()
     
     while (getline(file,line)) 
     {
+     
         int index = 0 ;  // reset  the column index for each line 
         // declaring variables for tokenization 
         string residentId ; 
@@ -68,20 +81,36 @@ int main ()
         string token ; 
         while (getline(ss,token,',') ) // this continue to read the line until no more delimeters
         {
-            if (index == 0 ) {residentId = token ; }
-            index ++ ; 
-            if (index ==1 ) {age = stoi(token); }
-            index ++ ; 
-            if (index == 2 ) {transport = stringToTransport(token);}
-            index ++ ; 
-            if (index == 3 ) {dailydistance = stod(token);}
-            index ++ ; 
-            if (index == 4) {carbonEmissionFactor = stod(token) ;}
-            index ++ ;
-            if (index == 5 ) {averageDayPerMonth = stoi(token) ;}
+            if (index == 0 ) {residentId = token ; index ++ ;}
+             
+            if (index ==1 ) {age = stoi(token);index ++ ; }
+            
+            if (index == 2 ) {transport = stringToTransport(token);index ++ ;}
+             
+            if (index == 3 ) {dailydistance = stod(token);index ++ ;}
+             
+            if (index == 4) {carbonEmissionFactor = stod(token) ;index ++ ;}
+            
+            if (index == 5 ) {averageDayPerMonth = stoi(token) ;index ++ ;}
         }
         // we are done parsing the line now createn a token for each line parsen 
-        // test
+        // creating a variable that stores the address to a location in the heap 
+        Node* n = new Node() ;  
+        n -> ResidentId  = residentId ; 
+        n -> Age = age ; 
+        n -> transport = transport ; 
+        n-> DailyDistance =  dailydistance ; 
+        n -> CarbonEmissionFactor =  carbonEmissionFactor ; 
+        n -> AverageDayPerMonth =  averageDayPerMonth ; 
+        // this basiaclly populates the attributes of the node n  ( take note n is an address)
+        n -> next = nullptr ; 
+
     }
+
+}
+
+int main () 
+{
+
      
 }
