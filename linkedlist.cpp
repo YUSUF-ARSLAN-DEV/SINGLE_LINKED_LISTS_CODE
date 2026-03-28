@@ -112,17 +112,30 @@ LinkedList*  implement_dataset (string file_name )
     return city ; 
 
 }
-
-int main () 
+double calculate_total_emissions(LinkedList* c) 
 {
-    LinkedList* cityc = implement_dataset("cityc.csv");
-    Node* current  = cityc -> Head ; 
+    // formula for total emissions CarbonEmission rate / km * Daily distance (no of Km moved )  * No of days 
+    double total = 0 ; 
+    Node* current =  c -> Head ; 
     while (current != nullptr ) 
     {
-        cout << current -> ResidentId << endl; 
-        // do wtv u want with the node or values then move on traverse
-        current = current -> next ; // 
+        total +=( (current -> CarbonEmissionFactor) * (current -> DailyDistance ) * (current -> AverageDayPerMonth) ); 
+        current = current -> next ; // here we are basically traversing into the next node 
     }
+    return total ; 
+}
+int main () 
+{
+    /*  Question 5 a start 
+    LinkedList* citya = implement_dataset("citya.csv");
+    LinkedList* cityb = implement_dataset("cityb.csv");
+    LinkedList* cityc = implement_dataset("cityc.csv");
+   
+    cout << "The total Carbon Emissions for city a is " << calculate_total_emissions(citya) <<endl ; 
+    cout << "The total Carbon Emissions for city b is " << calculate_total_emissions(cityb) <<endl ;
+    cout << "The total Carbon Emissions for city c is " << calculate_total_emissions(cityc) <<endl  ;
+
+     Question 5 a  end  */
 
 
     
