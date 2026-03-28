@@ -54,16 +54,18 @@ ModeofTransport stringToTransport (string value )
     if (value == "Walking")    return ModeofTransport :: Walking ;
     if (value == "Carpool")    return ModeofTransport :: Carpool ; 
     if (value == "School Bus")    return ModeofTransport :: SchoolBus ;
+    return ModeofTransport :: Walking ; // as the default return statement 
 }
 
-LinkedList implement_dataset () 
+LinkedList*  implement_dataset (string file_name ) 
 {
-        // reading the csv file 
+    // reading the csv file 
     // expected column order when reading the data 
     // ResidentID , Age , ModeofTransport , DailyDistance , CarbonEmissionFactor , AverageDayPerMonth
-    ifstream file("citya.csv") ;
+    ifstream file(file_name) ;
     string line ; 
-    
+    LinkedList* city = new LinkedList() ;  // this creates a pointer in the stack that refrences a memory address on the heap 
+    getline(file,line ) ;
     while (getline(file,line)) 
     {
      
@@ -81,17 +83,18 @@ LinkedList implement_dataset ()
         string token ; 
         while (getline(ss,token,',') ) // this continue to read the line until no more delimeters
         {
-            if (index == 0 ) {residentId = token ; index ++ ;}
+            if (index == 0 ) {residentId = token ; }
              
-            if (index ==1 ) {age = stoi(token);index ++ ; }
+           else if (index ==1 ) {age = stoi(token); }
             
-            if (index == 2 ) {transport = stringToTransport(token);index ++ ;}
+           else  if (index == 2 ) {transport = stringToTransport(token);}
              
-            if (index == 3 ) {dailydistance = stod(token);index ++ ;}
+            else if (index == 3 ) {dailydistance = stod(token);}
              
-            if (index == 4) {carbonEmissionFactor = stod(token) ;index ++ ;}
+            else if (index == 4) {carbonEmissionFactor = stod(token) ;}
             
-            if (index == 5 ) {averageDayPerMonth = stoi(token) ;index ++ ;}
+            else if (index == 5 ) {averageDayPerMonth = stoi(token) ;}
+            index ++ ; 
         }
         // we are done parsing the line now createn a token for each line parsen 
         // creating a variable that stores the address to a location in the heap 
@@ -104,13 +107,24 @@ LinkedList implement_dataset ()
         n -> AverageDayPerMonth =  averageDayPerMonth ; 
         // this basiaclly populates the attributes of the node n  ( take note n is an address)
         n -> next = nullptr ; 
-
+        city -> insert_node(n) ;// now we have inserted the node 
     }
+    return city ; 
 
 }
 
 int main () 
 {
+    LinkedList* cityc = implement_dataset("cityc.csv");
+    Node* current  = cityc -> Head ; 
+    while (current != nullptr ) 
+    {
+        cout << current -> ResidentId << endl; 
+        // do wtv u want with the node or values then move on traverse
+        current = current -> next ; // 
+    }
 
+
+    
      
 }
