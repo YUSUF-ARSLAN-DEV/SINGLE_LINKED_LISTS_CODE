@@ -1,7 +1,9 @@
-#include <iostream> 
-#include <string> 
-#include <fstream> 
-#include <sstream> 
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <chrono>
 
 using namespace std ; 
 enum  class ModeofTransport 
@@ -263,7 +265,250 @@ void dominantTransport(IndexLinkedList* citya, IndexLinkedList* cityb, IndexLink
     cout << "Total emissions: " << total_emissions << " Kg CO2" << endl;
     cout << "Average Carbon Emissions per resident in the Age Group of: " << group<<" " << total_emissions / res_count <<endl  ; 
 }
-int main () 
+// ── Question 5 helpers ───────────────────────────────────────────────────────
+
+string getTransportLabel(ModeofTransport t)
+{
+    if (t == ModeofTransport::Car)       return "Car";
+    if (t == ModeofTransport::Bus)       return "Bus";
+    if (t == ModeofTransport::Bicycle)   return "Bicycle";
+    if (t == ModeofTransport::Walking)   return "Walking";
+    if (t == ModeofTransport::Carpool)   return "Carpool";
+    if (t == ModeofTransport::SchoolBus) return "School Bus";
+    return "Unknown";
+}
+
+// Q5b + Q5d : takes a sub-linked list (IndexLinkedList) as argument,
+//             iterates with if statements, prints a text-based table
+void printEmissionTable(IndexLinkedList* ageGroup, string groupLabel, string datasetLabel)
+{
+    int    countCar = 0, countBus = 0, countBicycle = 0, countWalking = 0, countCarpool = 0, countSchoolBus = 0;
+    double emCar    = 0, emBus    = 0, emBicycle    = 0, emWalking    = 0, emCarpool    = 0, emSchoolBus    = 0;
+    double groupTotal = 0;
+
+    IndexNode* current = ageGroup->Head;
+    while (current != nullptr)
+    {
+        Node* r = current->original_value;
+        double emission = r->CarbonEmissionFactor * r->DailyDistance * r->AverageDayPerMonth;
+        if      (r->transport == ModeofTransport::Car)       { countCar++;       emCar       += emission; }
+        else if (r->transport == ModeofTransport::Bus)       { countBus++;       emBus       += emission; }
+        else if (r->transport == ModeofTransport::Bicycle)   { countBicycle++;   emBicycle   += emission; }
+        else if (r->transport == ModeofTransport::Walking)   { countWalking++;   emWalking   += emission; }
+        else if (r->transport == ModeofTransport::Carpool)   { countCarpool++;   emCarpool   += emission; }
+        else if (r->transport == ModeofTransport::SchoolBus) { countSchoolBus++; emSchoolBus += emission; }
+        groupTotal += emission;
+        current = current->next;
+    }
+
+    cout << "Age Group: " << groupLabel << " [" << datasetLabel << "]\n";
+    cout << "---------------------------------------\n";
+    cout << left
+         << setw(20) << "Mode of Transport"
+         << setw(10) << "Count"
+         << setw(28) << "Total Emission (kg CO2)"
+         << "Average per Resident\n";
+
+    string labels[6] = { "Car", "Bus", "Bicycle", "Walking", "Carpool", "School Bus" };
+    int    counts[6] = { countCar, countBus, countBicycle, countWalking, countCarpool, countSchoolBus };
+    double emits[6]  = { emCar,    emBus,    emBicycle,    emWalking,    emCarpool,    emSchoolBus    };
+
+    for (int i = 0; i < 6; i++)
+    {
+        if (counts[i] > 0)
+        {
+            double avg = emits[i] / counts[i];
+            cout << left
+                 << setw(20) << labels[i]
+                 << setw(10) << counts[i]
+                 << setw(28) << emits[i]
+                 << avg << "\n";
+        }
+    }
+    cout << "---------------------------------------\n";
+    cout << "Total Emission for Age Group: " << groupTotal << " kg CO2\n\n";
+}
+
+// Q5c : compare the same age group across all three datasets
+void compareAcrossDatasets(IndexLinkedList* a, IndexLinkedList* b, IndexLinkedList* c, string groupLabel)
+{
+    cout << "===== Comparing Datasets | Age Group: " << groupLabel << " =====\n\n";
+    printEmissionTable(a, groupLabel, "City A");
+    printEmissionTable(b, groupLabel, "City B");
+    printEmissionTable(c, groupLabel, "City C");
+}
+
+// ── Question 6 helpers ───────────────────────────────────────────────────────
+
+enum class SortKey { Age, DailyDistance, CarbonEmission };
+
+string getSortKeyLabel(SortKey key)
+{
+    if (key == SortKey::Age)           return "Age";
+    if (key == SortKey::DailyDistance) return "Daily Distance";
+    return "Carbon Emission";
+}
+
+double getSortValue(Node* n, SortKey key)
+{
+    if (key == SortKey::Age)           return (double)n->Age;
+    if (key == SortKey::DailyDistance) return n->DailyDistance;
+    return n->CarbonEmissionFactor * n->DailyDistance * n->AverageDayPerMonth;
+}
+
+int countNodes(LinkedList* list)
+{
+    int count = 0;
+    Node* cur = list->Head;
+    while (cur != nullptr) { count++; cur = cur->next; }
+    return count;
+}
+
+// Bubble sort on linked list — swaps node data, not pointers
+void bubbleSortLinkedList(LinkedList* list, SortKey key)
+{
+    if (list->Head == nullptr) return;
+    bool swapped = true;
+    while (swapped)
+    {
+        swapped = false;
+        Node* cur = list->Head;
+        while (cur->next != nullptr)
+        {
+            if (getSortValue(cur, key) > getSortValue(cur->next, key))
+            {
+                Node* nx = cur->next;
+                string          tmpId  = cur->ResidentId;           cur->ResidentId           = nx->ResidentId;           nx->ResidentId           = tmpId;
+                int             tmpAge = cur->Age;                  cur->Age                  = nx->Age;                  nx->Age                  = tmpAge;
+                ModeofTransport tmpT   = cur->transport;            cur->transport            = nx->transport;            nx->transport            = tmpT;
+                double          tmpDd  = cur->DailyDistance;        cur->DailyDistance        = nx->DailyDistance;        nx->DailyDistance        = tmpDd;
+                double          tmpCef = cur->CarbonEmissionFactor; cur->CarbonEmissionFactor = nx->CarbonEmissionFactor; nx->CarbonEmissionFactor = tmpCef;
+                int             tmpDpm = cur->AverageDayPerMonth;   cur->AverageDayPerMonth   = nx->AverageDayPerMonth;   nx->AverageDayPerMonth   = tmpDpm;
+                swapped = true;
+            }
+            cur = cur->next;
+        }
+    }
+}
+
+// Bubble sort on a plain Node array (next pointer field is unused)
+void bubbleSortArray(Node* arr, int n, SortKey key)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        bool swapped = false;
+        for (int j = 0; j < n - 1 - i; j++)
+        {
+            if (getSortValue(&arr[j], key) > getSortValue(&arr[j + 1], key))
+            {
+                Node tmp   = arr[j];
+                arr[j]     = arr[j + 1];
+                arr[j + 1] = tmp;
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+
+// Print first maxRows entries of a sorted linked list
+void printSortedResults(LinkedList* list, string datasetLabel, string sortKeyLabel, int maxRows)
+{
+    cout << "Sorted Results [" << datasetLabel << "] by " << sortKeyLabel
+         << " (top " << maxRows << "):\n";
+    cout << left
+         << setw(6)  << "Rank"
+         << setw(14) << "ResidentID"
+         << setw(6)  << "Age"
+         << setw(14) << "Transport"
+         << setw(14) << "Daily Dist"
+         << "Carbon Emission\n";
+    cout << string(68, '-') << "\n";
+
+    Node* cur = list->Head;
+    int rank = 1;
+    while (cur != nullptr && rank <= maxRows)
+    {
+        double emission = cur->CarbonEmissionFactor * cur->DailyDistance * cur->AverageDayPerMonth;
+        cout << left
+             << setw(6)  << rank
+             << setw(14) << cur->ResidentId
+             << setw(6)  << cur->Age
+             << setw(14) << getTransportLabel(cur->transport)
+             << setw(14) << cur->DailyDistance
+             << emission << "\n";
+        cur  = cur->next;
+        rank++;
+    }
+    cout << "\n";
+}
+
+// Run sorting experiment: copy to array, sort both, time both, display comparison table
+void sortingExperiment(LinkedList* list, string datasetLabel, SortKey key)
+{
+    using namespace chrono;
+    int    n        = countNodes(list);
+    string keyLabel = getSortKeyLabel(key);
+
+    // Copy linked list into a plain array (captures same initial order)
+    Node* arr = new Node[n];
+    Node* cur = list->Head;
+    for (int i = 0; i < n; i++) { arr[i] = *cur; cur = cur->next; }
+
+    // Time array bubble sort
+    auto t1 = high_resolution_clock::now();
+    bubbleSortArray(arr, n, key);
+    auto t2 = high_resolution_clock::now();
+    double arrTime = duration<double, milli>(t2 - t1).count();
+
+    // Time linked list bubble sort (list still in original order)
+    t1 = high_resolution_clock::now();
+    bubbleSortLinkedList(list, key);
+    t2 = high_resolution_clock::now();
+    double llTime = duration<double, milli>(t2 - t1).count();
+
+    // Memory
+    long long llMem  = (long long)n * sizeof(Node);                       // node data + embedded next ptr
+    long long arrMem = (long long)n * (sizeof(Node) - sizeof(Node*));     // data only, no next ptr needed
+
+    // Display sorted results (top 10 from linked list)
+    printSortedResults(list, datasetLabel, keyLabel, 10);
+
+    // Display comparison table
+    cout << "===== Bubble Sort Comparison: by " << keyLabel << " [" << datasetLabel << "] =====\n";
+    cout << left
+         << setw(22) << "Structure"
+         << setw(12) << "Elements"
+         << setw(14) << "Time (ms)"
+         << setw(22) << "Memory (bytes)"
+         << setw(16) << "Time Complexity"
+         << "Space Complexity\n";
+    cout << string(88, '-') << "\n";
+    cout << left
+         << setw(22) << "Singly Linked List"
+         << setw(12) << n
+         << setw(14) << llTime
+         << setw(22) << llMem
+         << setw(16) << "O(n^2)"
+         << "O(1) extra\n";
+    cout << left
+         << setw(22) << "Array"
+         << setw(12) << n
+         << setw(14) << arrTime
+         << setw(22) << arrMem
+         << setw(16) << "O(n^2)"
+         << "O(n) for copy\n";
+    cout << string(88, '-') << "\n";
+    cout << "Note: LL node = " << sizeof(Node) << " bytes (data + "
+         << sizeof(Node*) << "-byte next ptr). Array element = "
+         << sizeof(Node) - sizeof(Node*) << " bytes (no next ptr).\n\n";
+
+    delete[] arr;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+int main ()
 {
     /* Working on Question 4 */ 
     // age categorization  + Total Carbon Emissions + Average Carbon Emissions per resident . 
@@ -279,8 +524,27 @@ int main ()
     dominantTransport(cityACategories.workingAdultsEarly, cityBCategories.workingAdultsEarly, cityCCategories.workingAdultsEarly, "Working Adults Early");
     dominantTransport(cityACategories.workingAdultsLate, cityBCategories.workingAdultsLate, cityCCategories.workingAdultsLate, "Working Adults Late");
     dominantTransport(cityACategories.seniorCitizens, cityBCategories.seniorCitizens, cityCCategories.seniorCitizens, "Senior Citizens");
-    
-   // 
+
+    /* Question 5 */
+
+    // 5a - Total carbon emissions per dataset
+    cout << "Total Carbon Emissions for City A: " << calculate_total_emissions(citya) << " kg CO2\n";
+    cout << "Total Carbon Emissions for City B: " << calculate_total_emissions(cityb) << " kg CO2\n";
+    cout << "Total Carbon Emissions for City C: " << calculate_total_emissions(cityc) << " kg CO2\n";
+
+    // 5b, 5c, 5d - Emissions per mode of transport, compared across datasets and age groups
+    compareAcrossDatasets(cityACategories.childrenTeenagers,            cityBCategories.childrenTeenagers,            cityCCategories.childrenTeenagers,            "6-17 (Children & Teenagers)");
+    compareAcrossDatasets(cityACategories.universityStudentsYoungAdults, cityBCategories.universityStudentsYoungAdults, cityCCategories.universityStudentsYoungAdults, "18-25 (University Students)");
+    compareAcrossDatasets(cityACategories.workingAdultsEarly,           cityBCategories.workingAdultsEarly,           cityCCategories.workingAdultsEarly,           "26-45 (Working Adults Early)");
+    compareAcrossDatasets(cityACategories.workingAdultsLate,            cityBCategories.workingAdultsLate,            cityCCategories.workingAdultsLate,            "46-60 (Working Adults Late)");
+    compareAcrossDatasets(cityACategories.seniorCitizens,               cityBCategories.seniorCitizens,               cityCCategories.seniorCitizens,               "61-100 (Senior Citizens)");
+
+    /* Question 6 */
+    sortingExperiment(citya, "City A", SortKey::Age);
+    sortingExperiment(cityb, "City B", SortKey::DailyDistance);
+    sortingExperiment(cityc, "City C", SortKey::CarbonEmission);
+
+   //
 
 
     
