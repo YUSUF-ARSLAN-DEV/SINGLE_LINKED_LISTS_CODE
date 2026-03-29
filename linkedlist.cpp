@@ -512,27 +512,32 @@ int main ()
 {
     /* Working on Question 4 */ 
     // age categorization  + Total Carbon Emissions + Average Carbon Emissions per resident . 
-    
     LinkedList* citya = implement_dataset("citya.csv");
     LinkedList* cityb = implement_dataset("cityb.csv");
     LinkedList* cityc = implement_dataset("cityc.csv");
     AgeCategories cityACategories = ageCategorization(citya) ;  // Each object has 5 IndexLists - aka a logic filtering done for the categories 
     AgeCategories cityBCategories = ageCategorization(cityb);
     AgeCategories cityCCategories = ageCategorization(cityc) ;
+
+    /*
     dominantTransport(cityACategories.childrenTeenagers , cityBCategories.childrenTeenagers,cityCCategories.childrenTeenagers,"Children and Teenagers") ;
     dominantTransport(cityACategories.universityStudentsYoungAdults, cityBCategories.universityStudentsYoungAdults, cityCCategories.universityStudentsYoungAdults, "University Students and Young Adults");
     dominantTransport(cityACategories.workingAdultsEarly, cityBCategories.workingAdultsEarly, cityCCategories.workingAdultsEarly, "Working Adults Early");
     dominantTransport(cityACategories.workingAdultsLate, cityBCategories.workingAdultsLate, cityCCategories.workingAdultsLate, "Working Adults Late");
     dominantTransport(cityACategories.seniorCitizens, cityBCategories.seniorCitizens, cityCCategories.seniorCitizens, "Senior Citizens");
+    */
 
     /* Question 5 */
 
     // 5a - Total carbon emissions per dataset
+     /*
     cout << "Total Carbon Emissions for City A: " << calculate_total_emissions(citya) << " kg CO2\n";
     cout << "Total Carbon Emissions for City B: " << calculate_total_emissions(cityb) << " kg CO2\n";
     cout << "Total Carbon Emissions for City C: " << calculate_total_emissions(cityc) << " kg CO2\n";
+    */
 
     // 5b, 5c, 5d - Emissions per mode of transport, compared across datasets and age groups
+
     compareAcrossDatasets(cityACategories.childrenTeenagers,            cityBCategories.childrenTeenagers,            cityCCategories.childrenTeenagers,            "6-17 (Children & Teenagers)");
     compareAcrossDatasets(cityACategories.universityStudentsYoungAdults, cityBCategories.universityStudentsYoungAdults, cityCCategories.universityStudentsYoungAdults, "18-25 (University Students)");
     compareAcrossDatasets(cityACategories.workingAdultsEarly,           cityBCategories.workingAdultsEarly,           cityCCategories.workingAdultsEarly,           "26-45 (Working Adults Early)");
@@ -555,16 +560,7 @@ int main ()
     
 
 
-    /*  Question 5 a start 
-    LinkedList* citya = implement_dataset("citya.csv");
-    LinkedList* cityb = implement_dataset("cityb.csv");
-    LinkedList* cityc = implement_dataset("cityc.csv");
-   
-    cout << "The total Carbon Emissions for city a is " << calculate_total_emissions(citya) <<endl ; 
-    cout << "The total Carbon Emissions for city b is " << calculate_total_emissions(cityb) <<endl ;
-    cout << "The total Carbon Emissions for city c is " << calculate_total_emissions(cityc) <<endl  ;
-
-     Question 5 a  end  */
+  
 
 
     
