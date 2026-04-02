@@ -513,13 +513,13 @@ void sortingExperiment(LinkedList* list, string datasetLabel, SortKey key)
     delete[] arr;
 }
 
-IndexLinkedList* linear_search (LinkedList* list, int targetAge)
+IndexLinkedList* linear_search (LinkedList* list, int start_age , int end_age )
 {
     IndexLinkedList* results = new IndexLinkedList();
     Node* current = list->Head;
     while (current != nullptr)
     {
-        if (current->Age == targetAge)
+        if (current->Age  >= start_age && current->Age <= end_age )
         {
             IndexNode* n = new IndexNode();
             n->original_value = current;
@@ -546,7 +546,22 @@ IndexLinkedList* linear_search (LinkedList * list , ModeofTransport targetTransp
     return result ; 
 }
 
-IndexLinkedList* linear_search (LinkedList* list, double targetEmission)
+IndexLinkedList* linear_search (LinkedList* list, double distance_threshold)
+{
+    IndexLinkedList* results = new IndexLinkedList();
+    Node* current = list->Head;
+    while (current != nullptr)
+    {
+        if (current->DailyDistance > distance_threshold)
+        {
+            IndexNode* n = new IndexNode();
+            n->original_value = current;
+            results->insert_node(n);
+        }
+        current = current->next;
+    }
+    return results;
+}
 {
     IndexLinkedList* results = new IndexLinkedList();
     Node* current = list->Head;
