@@ -513,7 +513,56 @@ void sortingExperiment(LinkedList* list, string datasetLabel, SortKey key)
     delete[] arr;
 }
 
+IndexLinkedList* linear_search (LinkedList* list, int targetAge)
+{
+    IndexLinkedList* results = new IndexLinkedList();
+    Node* current = list->Head;
+    while (current != nullptr)
+    {
+        if (current->Age == targetAge)
+        {
+            IndexNode* n = new IndexNode();
+            n->original_value = current;
+            results->insert_node(n);
+        }
+        current = current->next;
+    }
+    return results;
+}
 
+IndexLinkedList* linear_search (LinkedList * list , ModeofTransport targetTransport )
+{
+    Node* current = list -> Head ; 
+    IndexLinkedList * result = new IndexLinkedList() ; 
+    while (current != nullptr ){
+        if (current -> transport == targetTransport ) 
+        {
+            IndexNode * n = new IndexNode() ; 
+            n->original_value = current ; // now we are saving the value of original into the refrence node basically storing a pointer to the original node so that search is logical no recopying 
+            result -> insert_node(n) ; 
+
+        }
+    }
+    return result ; 
+}
+
+IndexLinkedList* linear_search (LinkedList* list, double targetEmission)
+{
+    IndexLinkedList* results = new IndexLinkedList();
+    Node* current = list->Head;
+    while (current != nullptr)
+    {
+        double emission = current->CarbonEmissionFactor * current->DailyDistance * current->AverageDayPerMonth;
+        if (abs(emission - targetEmission) < 1e-6) // using a small epsilon for floating-point comparison
+        {
+            IndexNode* n = new IndexNode();
+            n->original_value = current;
+            results->insert_node(n);
+        }
+        current = current->next;
+    }
+    return results;
+}   
 
 // ─────────────────────────────────────────────────────────────────────────────
 
