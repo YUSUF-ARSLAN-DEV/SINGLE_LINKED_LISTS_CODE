@@ -562,22 +562,8 @@ IndexLinkedList* linear_search (LinkedList* list, double distance_threshold)
     }
     return results;
 }
-{
-    IndexLinkedList* results = new IndexLinkedList();
-    Node* current = list->Head;
-    while (current != nullptr)
-    {
-        double emission = current->CarbonEmissionFactor * current->DailyDistance * current->AverageDayPerMonth;
-        if (abs(emission - targetEmission) < 1e-6) // using a small epsilon for floating-point comparison
-        {
-            IndexNode* n = new IndexNode();
-            n->original_value = current;
-            results->insert_node(n);
-        }
-        current = current->next;
-    }
-    return results;
-}   
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 
