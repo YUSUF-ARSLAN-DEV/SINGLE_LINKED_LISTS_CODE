@@ -162,6 +162,7 @@ int count_residents_a  = 0 ;
 int count_residents_b = 0 ; 
 int count_residents_c = 0 ;  
 
+
 LinkedList*  implement_dataset (string file_name ) 
 {
     // reading the csv file 
@@ -513,10 +514,10 @@ void sortingExperiment(LinkedList* list, string datasetLabel, SortKey key)
     delete[] arr;
 }
 
-IndexLinkedList* linear_search (LinkedList* list, int start_age , int end_age )
+IndexLinkedList* linear_search (LinkedList* list, int start_age , int end_age  )
 {
     IndexLinkedList* results = new IndexLinkedList();
-    Node* current = list->Head;
+    Node* current  = list -> Head ; 
     while (current != nullptr)
     {
         if (current->Age  >= start_age && current->Age <= end_age )
@@ -542,6 +543,7 @@ IndexLinkedList* linear_search (LinkedList * list , ModeofTransport targetTransp
             result -> insert_node(n) ; 
 
         }
+        current = current -> next ; 
     }
     return result ; 
 }
@@ -563,8 +565,77 @@ IndexLinkedList* linear_search (LinkedList* list, double distance_threshold)
     return results;
 }
 
+IndexLinkedList* jump_serach (LinkedList* L , int start_age , int end_age ) {
+    // This Requires a sorted Linked List 
+    // we use jump search to find the starting point in our range of our desired values 
+    // then we do linear search basically traversing through the rest of the points 
+    IndexLinkedList* results = new IndexLinkedList();
+    int node_count = countNodes(L) ; 
+    int jump_size =  (int) sqrt( (double)node_count ) ; 
+    Node * prev = nullptr ; 
+    Node * current = L -> Head ; 
+    while (current != nullptr  && current -> Age < start_age) 
+    {
+        prev = current ; // keeping track of the last position before we jump 
+        for (int i = 0 ; i <jump_size && current -> next != nullptr  ; i++ )  // we might reac the end while jumping 
+        {
+            
+            current =  current -> next ; 
+            // current will always land on an existing node that is non nullptr 
+        }
+    }
+    if (prev == nullptr ) prev = current ; // currents still points at the head 
+    // tracing back from prev node  
+    while ( prev != nullptr && prev -> Age <= end_age  ) 
+    {
+        if (prev ->Age  >= start_age && prev->Age <= end_age) 
+        {
+            IndexNode* n = new IndexNode();
+            n->original_value = prev ;
+            results->insert_node(n);
+            
+        }
+        prev = prev -> next ; 
 
+    }
+    return results ; 
+}
 
+IndexLinkedList * jump_search (LinkedList*L , double distance_threshold) // this is for the daily distance threshold 
+{
+    // phase 1 jumping 
+    int nodes_count = countNodes(L) ; 
+    int  jump_size = (int) sqrt(  (double)nodes_count ) ;  
+    IndexLinkedList* result = new IndexLinkedList() ; 
+    Node* prev = nullptr ; 
+    Node* current = L -> Head ; 
+    while (current != nullptr && current ->DailyDistance  <= distance_threshold) 
+    { 
+        prev = current ; // so that prev is always at n nodes before the current node 
+        for ( int i = 0 ; i <jump_size && current -> next != nullptr  ; i++ ) { 
+            current = current -> next ; 
+        // we check for -> next != nullptr so that we do not shoot out of the range of values into a nullptr
+        // in cases that the values is nto there - ensuring the current node is always on a valid node 
+
+        }
+    }
+
+    if (prev == nullptr ) prev = current ; // in the cases that the range - aka starting value is less than the head so we 
+    // just linear traverse from the head 
+    // phase 2 - 
+    while (prev != nullptr  ) // only one condition since we want all values above that threshold 
+    {
+        if (prev -> DailyDistance > distance_threshold) 
+        {
+            IndexNode * n = new IndexNode() ; 
+            n -> original_value = prev ; 
+            result -> insert_node(n) ; // we use -> because result is simply an address 
+        }
+        prev = prev -> next ; 
+    } 
+    return result ; 
+
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 int main ()
